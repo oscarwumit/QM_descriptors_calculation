@@ -10,14 +10,15 @@ from .g16_log import XtbLog
 
 def xtb_optimization(folder, sdf, xtb_path, logger):
     basename = os.path.basename(sdf)
+    file_name = os.path.splitext(basename)[0]
+    scratch_dir = os.path.join(folder,file_name)
+    os.makedirs(scratch_dir)
 
     pwd = os.getcwd()
 
-    os.chdir(folder)
+    os.chdir(scratch_dir)
 
     try:
-        file_name = os.path.splitext(basename)[0]
-
         xtb_command = os.path.join(xtb_path, 'xtb')
         with open('{}_xtb_opt.log'.format(file_name), 'w') as out:
             print(xtb_command, '{}.sdf'.format(file_name))
@@ -30,12 +31,13 @@ def xtb_optimization(folder, sdf, xtb_path, logger):
             subprocess.call([xtb_command, '{}_opt.sdf'.format(file_name), '-ohess'], stdout=out,
                             stderr=out)
 
-            os.remove('hessian')
-            os.remove('vibspectrum')
+            # os.remove('hessian')
+            # os.remove('vibspectrum')
 
         log = XtbLog('{}_freq.log'.format(file_name))
     finally:
         os.chdir(pwd)
+        shutil.rmtree(scratch_dir)
 
     if log.termination:
         peaks = log.wavenum

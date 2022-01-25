@@ -141,8 +141,7 @@ def postrmsd(n, diz2, rmspost):
 
 # conformational search / handles parallel threads if more than one structure is defined
 def csearch(supp, total, args, logger):
-    if not os.path.isdir(args.MMFF_conf_folder):
-        os.mkdir(args.MMFF_conf_folder)
+    os.makedirs(args.MMFF_conf_folder, exist_ok=True)
 
     conf_sdfs = []
     with futures.ProcessPoolExecutor(max_workers=args.MMFF_threads) as executor:

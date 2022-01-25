@@ -21,8 +21,7 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger):
         g16_command = os.path.join(g16_path, 'g16')
         QM_descriptors = {}
         for jobtype in ['neutral', 'plus1', 'minus1']:
-            if not os.path.isdir(jobtype):
-                os.mkdir(jobtype)
+            os.makedirs(jobtype, exist_ok=True)
 
             if jobtype == 'neutral':
                 charge = 0

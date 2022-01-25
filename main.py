@@ -63,8 +63,7 @@ conf_sdfs = csearch(supp, len(df), args, logger)
 # xtb optimization
 
 logger.info('starting GFN2-XTB structure optimization for the lowest MMFF conformer')
-if not os.path.isdir(args.xtb_folder):
-    os.mkdir(args.xtb_folder)
+os.makedirs(args.xtb_folder,exist_ok=True)
 
 opt_sdfs = []
 for conf_sdf in conf_sdfs:
@@ -77,8 +76,7 @@ for conf_sdf in conf_sdfs:
         logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
 
 # G16 DFT calculation
-if not os.path.isdir(args.DFT_folder):
-    os.mkdir(args.DFT_folder)
+os.makedirs(args.DFT_folder, exist_ok=True)
 
 qm_descriptors = []
 for opt_sdf in opt_sdfs:
