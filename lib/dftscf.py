@@ -5,7 +5,7 @@ from .file_parser import mol2xyz, xyz2com
 from .grab_QM_descriptors import read_log
 
 
-def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger):
+def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger, job_ram):
     basename = os.path.basename(sdf)
 
     parent_folder = os.getcwd()
@@ -26,18 +26,18 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger):
             if jobtype == 'neutral':
                 charge = 0
                 mult = 1
-                head = '%chk={}.chk\n%nprocshared={}\n# b3lyp/def2svp nmr=GIAO scf=(maxcycle=512, xqc) ' \
-                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs)
+                head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp nmr=GIAO scf=(maxcycle=512, xqc) ' \
+                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
             elif jobtype == 'plus1':
                 charge = 1
                 mult = 2
-                head = '%chk={}.chk\n%nprocshared={}\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
-                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs)
+                head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
+                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
             elif jobtype == 'minus1':
                 charge = -1
                 mult = 2
-                head = '%chk={}.chk\n%nprocshared={}\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
-                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs)
+                head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
+                       'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
 
 
             os.chdir(jobtype)

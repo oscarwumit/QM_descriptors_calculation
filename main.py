@@ -46,6 +46,8 @@ parser.add_argument('--DFT_theory', type=str, default='b3lyp/def2svp',
                     help='level of theory for the DFT calculation')
 parser.add_argument('--DFT_n_procs', type=int, default=20,
                     help='number of process for DFT calculations')
+parser.add_argument('--DFT_job_ram', type=int, default=140000,
+                    help='amount of ram (MB) allocated for each DFT calculation')
 
 args = parser.parse_args()
 
@@ -84,7 +86,7 @@ for opt_sdf in opt_sdfs:
         shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
                         os.path.join(args.DFT_folder, opt_sdf))
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
-                                logger)
+                                logger, args.DFT_job_ram)
         qm_descriptors.append(qm_descriptor)
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
