@@ -49,6 +49,10 @@ parser.add_argument('--DFT_n_procs', type=int, default=20,
 parser.add_argument('--DFT_job_ram', type=int, default=140000,
                     help='amount of ram (MB) allocated for each DFT calculation')
 
+# molecular property
+parser.add_argument('--base_mol_charge', type=int, default=0,
+                    help='charge on the input molecule')
+
 args = parser.parse_args()
 
 name = os.path.splitext(args.ismiles)[0]
@@ -86,7 +90,7 @@ for opt_sdf in opt_sdfs:
         shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
                         os.path.join(args.DFT_folder, opt_sdf))
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
-                                logger, args.DFT_job_ram)
+                                logger, args.DFT_job_ram, args.base_mol_charge)
         qm_descriptors.append(qm_descriptor)
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
