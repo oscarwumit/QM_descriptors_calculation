@@ -4,6 +4,8 @@ import shutil
 
 import pandas as pd
 
+import rdkit.Chem as Chem
+
 from lib import create_logger
 from lib import csearch
 from lib import xtb_optimization
@@ -85,7 +87,7 @@ os.makedirs(args.DFT_folder, exist_ok=True)
 qm_descriptors = []
 for opt_sdf in opt_sdfs:
     try:
-        molid = os.path.splitext(os.path.basename(opt_sdf))[0].split('_')[0]
+        molid = opt_sdf.split('_')[0]
         smi = molid_to_smi_dict[molid]
         mol = Chem.MolFromSmiles(smi)
         charge = Chem.GetFormalCharge(mol)
