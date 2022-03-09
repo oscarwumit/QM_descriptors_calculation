@@ -49,16 +49,14 @@ parser.add_argument('--DFT_n_procs', type=int, default=12,
 parser.add_argument('--DFT_job_ram', type=int, default=320000,
                     help='amount of ram (MB) allocated for each DFT calculation')
 
-# molecular property
-parser.add_argument('--base_mol_charge', type=int, default=0,
-                    help='charge on the input molecule')
-
 args = parser.parse_args()
 
 name = os.path.splitext(args.ismiles)[0]
 logger = create_logger(name=name)
 
 df = pd.read_csv(args.ismiles, index_col=0)
+# create id to smile mapping
+molid_to_smi_dict = dict(zip(df.id, df.smiles))
 
 # conformer searching
 
@@ -87,10 +85,18 @@ os.makedirs(args.DFT_folder, exist_ok=True)
 qm_descriptors = []
 for opt_sdf in opt_sdfs:
     try:
+        molid = os.path.splitext(os.path.basename(opt_sdf))[0].split('_')[0]
+        smi = molid_to_smi_dict[molid]
+        mol = Chem.MolFromSmiles(smi)
+        charge = Chem.GetFormalCharge(mol)
+    except Exception as e:
+        logger.error(f'Cannot determine molecular charge for species {molid}')
+
+    try:
         shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
                         os.path.join(args.DFT_folder, opt_sdf))
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
-                                logger, args.DFT_job_ram, args.base_mol_charge)
+                                logger, args.DFT_job_ram, charge)
         qm_descriptors.append(qm_descriptor)
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
