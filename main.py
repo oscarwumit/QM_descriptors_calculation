@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, Namespace
 import os
 import shutil
+import time
 
 import pandas as pd
 
@@ -97,6 +98,11 @@ for opt_sdf in opt_sdfs:
     try:
         shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
                         os.path.join(args.DFT_folder, opt_sdf))
+        time.sleep(1)
+    except Exception as e:
+        logger.error(f'file IO error.')
+
+    try:
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
                                 logger, args.DFT_job_ram, charge)
         qm_descriptors.append(qm_descriptor)
