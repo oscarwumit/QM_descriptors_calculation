@@ -17,6 +17,7 @@ def read_log(log, jobtype):
         QMs['Atoms'] = log.AtomsType
         QMs['mulliken_charge'] = log.mulliken_charge.astype(np.float) if log.mulliken_charge is not None else np.nan
         QMs['mulliken_dipole_moment'] = log.mulliken_dipole_moment.astype(np.float) if log.mulliken_dipole_moment is not None else np.nan
+        QMs['mulliken_spin_density'] = log.mulliken_spin_density.astype(np.float) if log.mulliken_spin_density is not None else np.nan
         QMs['hirshfeld_charges'] = log.hirshfeld_charges.astype(np.float) if log.hirshfeld_charges is not None else np.nan
         QMs['hirshfeld_spin_density'] = log.hirshfeld_spin_density.astype(np.float) if log.hirshfeld_spin_density is not None else np.nan
         QMs['hirshfeld_dipoles'] = log.hirshfeld_dipoles.astype(np.float) if log.hirshfeld_dipoles is not None else np.nan
@@ -37,6 +38,7 @@ def read_log(log, jobtype):
         QMs['Atoms'] = log.AtomsType
         QMs['mulliken_charge'] = log.mulliken_charge.astype(np.float) if log.mulliken_charge is not None else np.nan
         QMs['mulliken_dipole_moment'] = log.mulliken_dipole_moment.astype(np.float) if log.mulliken_dipole_moment is not None else np.nan
+        QMs['mulliken_spin_density'] = log.mulliken_spin_density.astype(np.float) if log.mulliken_spin_density is not None else np.nan
         QMs['hirshfeld_charges'] = log.hirshfeld_charges.astype(np.float) if log.hirshfeld_charges is not None else np.nan
         QMs['hirshfeld_spin_density'] = log.hirshfeld_spin_density.astype(np.float) if log.hirshfeld_spin_density is not None else np.nan
         QMs['hirshfeld_dipoles'] = log.hirshfeld_dipoles.astype(np.float) if log.hirshfeld_dipoles is not None else np.nan
@@ -57,6 +59,7 @@ def read_log(log, jobtype):
         QMs['Atoms'] = log.AtomsType
         QMs['mulliken_charge'] = log.mulliken_charge.astype(np.float) if log.mulliken_charge is not None else np.nan
         QMs['mulliken_dipole_moment'] = log.mulliken_dipole_moment.astype(np.float) if log.mulliken_dipole_moment is not None else np.nan
+        QMs['mulliken_spin_density'] = log.mulliken_spin_density.astype(np.float) if log.mulliken_spin_density is not None else np.nan
         QMs['hirshfeld_charges'] = log.hirshfeld_charges.astype(np.float) if log.hirshfeld_charges is not None else np.nan
         QMs['hirshfeld_spin_density'] = log.hirshfeld_spin_density.astype(np.float) if log.hirshfeld_spin_density is not None else np.nan
         QMs['hirshfeld_dipoles'] = log.hirshfeld_dipoles.astype(np.float) if log.hirshfeld_dipoles is not None else np.nan

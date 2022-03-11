@@ -80,4 +80,4 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger, job_ram, ba
     finally:
         os.chdir(parent_folder)
 
-    return QM_descriptor_calc
+    return QM_descriptors_return
