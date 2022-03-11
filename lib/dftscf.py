@@ -1,4 +1,5 @@
 from rdkit import Chem
+import copy
 import os
 import subprocess
 from .file_parser import mol2xyz, xyz2com
@@ -48,32 +49,35 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger, job_ram, ba
             outfile = file_name + '.out'
             with open(outfile, 'w') as out:
                 subprocess.run('{} < {} >> {}'.format(g16_command, comfile, logfile), shell=True, stdout=out, stderr=out)
-                QM_descriptors[jobtype] = read_log(logfile)
+                QM_descriptors[jobtype] = read_log(logfile, jobtype)
             os.chdir(pwd)
 
-        QM_descriptor_return = QM_descriptors['neutral']
+        QM_descriptors_return = copy.deepcopy(QM_descriptors)
+        QM_descriptor_calc = dict()
 
         # charges and fukui indices
         for charge in ['mulliken_charge', 'hirshfeld_charges', 'NPA_Charge']:
-            QM_descriptor_return['{}_plus1'.format(charge)] = QM_descriptors['plus1'][charge]
-            QM_descriptor_return['{}_minus1'.format(charge)] = QM_descriptors['minus1'][charge]
+            QM_descriptor_calc['{}_plus1'.format(charge)] = QM_descriptors['plus1'][charge]
+            QM_descriptor_calc['{}_minus1'.format(charge)] = QM_descriptors['minus1'][charge]
 
-            QM_descriptor_return['{}_fukui_elec'.format(charge)] = QM_descriptors['neutral'][charge] - \
+            QM_descriptor_calc['{}_fukui_elec'.format(charge)] = QM_descriptors['neutral'][charge] - \
                                                                    QM_descriptors['minus1'][charge]
-            QM_descriptor_return['{}_fukui_neu'.format(charge)] = QM_descriptors['plus1'][charge] - \
+            QM_descriptor_calc['{}_fukui_neu'.format(charge)] = QM_descriptors['plus1'][charge] - \
                                                                    QM_descriptors['neutral'][charge]
 
         # spin density
         for spin in ['mulliken_spin_density', 'hirshfeld_spin_density']:
-            QM_descriptor_return['{}_plus1'.format(spin)] = QM_descriptors['plus1'][spin]
-            QM_descriptor_return['{}_minus1'.format(charge)] = QM_descriptors['minus1'][spin]
+            QM_descriptor_calc['{}_plus1'.format(spin)] = QM_descriptors['plus1'][spin]
+            QM_descriptor_calc['{}_minus1'.format(charge)] = QM_descriptors['minus1'][spin]
 
         # SCF
-        QM_descriptor_return['SCF_plus1'] = QM_descriptors['plus1']['SCF']
-        QM_descriptor_return['SCF_minus1'] = QM_descriptors['minus1']['SCF']
+        QM_descriptor_calc['SCF_plus1'] = QM_descriptors['plus1']['SCF']
+        QM_descriptor_calc['SCF_minus1'] = QM_descriptors['minus1']['SCF']
+
+        QM_descriptors_return['calculated'] = copy.deepcopy(QM_descriptor_calc)
 
         os.remove(sdf)
     finally:
         os.chdir(parent_folder)
 
-    return QM_descriptor_return
+    return QM_descriptor_calc
