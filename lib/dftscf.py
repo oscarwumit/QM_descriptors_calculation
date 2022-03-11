@@ -25,17 +25,17 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger, job_ram, ba
 
             if jobtype == 'neutral':
                 charge = base_charge
-                mult = abs(charge) + 1
+                mult = 1
                 head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp nmr=GIAO scf=(maxcycle=512, xqc) ' \
                        'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
             elif jobtype == 'plus1':
                 charge = base_charge + 1
-                mult = abs(charge) + 1
+                mult = 2
                 head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
                        'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
             elif jobtype == 'minus1':
                 charge = base_charge - 1
-                mult = abs(charge) + 1
+                mult = 2
                 head = '%chk={}.chk\n%nprocshared={}\n%mem={}mb\n# b3lyp/def2svp scf=(maxcycle=512, xqc) ' \
                        'pop=(full,mbs,hirshfeld,nbo6read)\n'.format(file_name, n_procs, job_ram)
 
