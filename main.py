@@ -2,6 +2,7 @@ from argparse import ArgumentParser, Namespace
 import os
 import shutil
 import time
+import yaml
 
 import pandas as pd
 
@@ -18,8 +19,8 @@ G16_PATH = '$G16_PATH'
 parser = ArgumentParser()
 parser.add_argument('--ismiles', type=str, required=False,
                     help='input smiles included in a .csv file')
-parser.add_argument('--output', type=str, default='QM_descriptors.pickle',
-                    help='output as a .pickle file')
+# parser.add_argument('--output', type=str, default='QM_descriptors.pickle',
+#                     help='output as a .pickle file')
 # conformer searching
 parser.add_argument('--MMFF_conf_folder', type=str, default='MMFF_conf',
                     help='folder for MMFF searched conformers')
@@ -109,6 +110,8 @@ for opt_sdf in opt_sdfs:
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
 
-qm_descriptors = pd.DataFrame(qm_descriptors)
-qm_descriptors.to_pickle(args.output)
+with open('qm_descriptors.yaml', 'w') as output:
+    yaml.dump(qm_descriptors, output)
+# qm_descriptors = pd.DataFrame(qm_descriptors)
+# qm_descriptors.to_pickle(args.output)
 
