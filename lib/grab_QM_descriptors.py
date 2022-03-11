@@ -2,19 +2,14 @@ from .g16_log import G16Log
 import numpy as np
 
 
-def read_log(log):
+def read_log(log, jobtype):
     log = G16Log(log)
     if log.termination:
         QMs = {}
     else:
         return None
 
-    if log.formal_charge == 0:
-        jtype = 'neutral'
-    elif log.formal_charge == 1:
-        jtype = 'plus1'
-    elif log.formal_charge == -1:
-        jtype = 'minus1'
+    jtype = jobtype
 
     QMs['type'] = jtype
     if jtype == 'neutral':
