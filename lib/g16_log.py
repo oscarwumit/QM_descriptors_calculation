@@ -284,10 +284,10 @@ class G16Log:
 
         txt = [x.strip() for x in txt]
         # charge and multiplicity
-        if self.mult == 1:
-            only_charge = False
-        else:
-            only_charge = True
+        # if self.mult == 1:
+        #     only_charge = False
+        # else:
+        #     only_charge = True
 
         # NPA charge
         NPA_Charge = np.zeros([len(self.AtomsNum), 3])
@@ -306,8 +306,8 @@ class G16Log:
             NPA_Charge[i, :] = [float(m[3]), float(m[5]), float(m[6])]
         self.NPA_Charge = NPA_Charge
 
-        if only_charge:
-            return
+        # if only_charge:
+        #     return
 
         # valence electron configuration
         for i, line in enumerate(txt):
