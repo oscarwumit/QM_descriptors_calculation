@@ -86,7 +86,7 @@ for conf_sdf in conf_sdfs:
 # G16 DFT calculation
 os.makedirs(args.DFT_folder, exist_ok=True)
 
-qm_descriptors = []
+qm_descriptors = dict()
 for opt_sdf in opt_sdfs:
     try:
         molid = opt_sdf.split('_')[0]
@@ -106,7 +106,7 @@ for opt_sdf in opt_sdfs:
     try:
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
                                 logger, args.DFT_job_ram, charge)
-        qm_descriptors.append(qm_descriptor)
+        qm_descriptors[molid] = (smi, qm_descriptor)
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
 
