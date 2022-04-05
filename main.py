@@ -10,7 +10,7 @@ import rdkit.Chem as Chem
 
 from lib import create_logger
 from lib import csearch
-from lib import xtb_optimization
+from lib import xtb_optimization, xtb_status
 from lib import dft_scf
 
 XTB_PATH = '/home/gridsan/oscarwu/bin/anaconda3/envs/QM_descriptors/bin/'
@@ -103,19 +103,28 @@ if not args.only_DFT:
             opt_sdfs.append(opt_sdf)
         except Exception as e:
             logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
+else:
+    opt_sdfs = []
+    for molid, v in molid_to_smi_dict.items():
+        logger.info(f'checking xtb convergence for {molid}')
+        try:
+            opt_sdf = xtb_status(args.xtb_folder, molid)
+            opt_sdfs.append(opt_sdf)
+        except Exception as e:
+            logger.error('XTB optimization for {} failed: {}'.format(molid, e))
 
 # G16 DFT calculation
 if not args.only_DFT:
     os.makedirs(args.DFT_folder, exist_ok=True)
-else:
-    logger.info("Searching for optimized XTB files.")
-    opt_sdfs = []
-    for a_file in os.listdir(args.DFT_folder):
-        if a_file.endswith(".sdf"):
-            logger.info(f'Found file {a_file}')
-            molid = a_file.split('_')[0]
-            if molid in molid_to_smi_dict.keys():
-                opt_sdfs.append(a_file)
+# else:
+    # logger.info("Searching for optimized XTB files.")
+    # opt_sdfs = []
+    # for a_file in os.listdir(args.DFT_folder):
+    #     if a_file.endswith(".sdf"):
+    #         logger.info(f'Found file {a_file}')
+    #         molid = a_file.split('_')[0]
+    #         if molid in molid_to_smi_dict.keys():
+    #             opt_sdfs.append(a_file)
 
 qm_descriptors = dict()
 for opt_sdf in opt_sdfs:
@@ -125,13 +134,13 @@ for opt_sdf in opt_sdfs:
     except Exception as e:
         logger.error(f'Cannot determine molecular charge for species {molid}')
 
-    if not args.only_DFT:
-        try:
-            shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
-                            os.path.join(args.DFT_folder, opt_sdf))
-            time.sleep(1)
-        except Exception as e:
-            logger.error(f'file IO error.')
+    # if not args.only_DFT:
+    try:
+        shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
+                        os.path.join(args.DFT_folder, opt_sdf))
+        time.sleep(1)
+    except Exception as e:
+        logger.error(f'file IO error for {opt_sdf}')
 
     try:
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
