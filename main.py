@@ -13,8 +13,8 @@ from lib import csearch
 from lib import xtb_optimization
 from lib import dft_scf
 
-XTB_PATH = '$GFN_XTB_PATH'
-G16_PATH = '$G16_PATH'
+XTB_PATH = '/home/gridsan/oscarwu/bin/anaconda3/envs/QM_descriptors/bin/'
+G16_PATH = '/home/gridsan/oscarwu/GRPAPI/Software/g16/'
 
 parser = ArgumentParser()
 parser.add_argument('--ismiles', type=str, required=False,
