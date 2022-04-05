@@ -10,7 +10,7 @@ import rdkit.Chem as Chem
 
 from lib import create_logger
 from lib import csearch
-from lib import xtb_optimization, xtb_status
+from lib.xtb_optimization import xtb_optimization, xtb_status
 from lib import dft_scf
 
 XTB_PATH = '/home/gridsan/oscarwu/bin/anaconda3/envs/QM_descriptors/bin/'
