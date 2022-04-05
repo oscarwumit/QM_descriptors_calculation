@@ -48,9 +48,9 @@ parser.add_argument('--DFT_folder', type=str, default='DFT',
                     help='folder for DFT calculation')
 parser.add_argument('--DFT_theory', type=str, default='b3lyp/def2svp',
                     help='level of theory for the DFT calculation')
-parser.add_argument('--DFT_n_procs', type=int, default=12,
+parser.add_argument('--DFT_n_procs', type=int, default=4,
                     help='number of process for DFT calculations')
-parser.add_argument('--DFT_job_ram', type=int, default=320000,
+parser.add_argument('--DFT_job_ram', type=int, default=3000,
                     help='amount of ram (MB) allocated for each DFT calculation')
 
 args = parser.parse_args()
