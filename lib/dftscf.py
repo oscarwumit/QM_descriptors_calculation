@@ -47,9 +47,18 @@ def dft_scf(folder, sdf, g16_path, level_of_theory, n_procs, logger, job_ram, ba
 
             logfile = file_name + '.log'
             outfile = file_name + '.out'
-            with open(outfile, 'w') as out:
-                subprocess.run('{} < {} >> {}'.format(g16_command, comfile, logfile), shell=True, stdout=out, stderr=out)
-                QM_descriptors[jobtype] = read_log(logfile, jobtype)
+            if not os.path.exists(outfile):
+                with open(outfile, 'w') as out:
+                    subprocess.run('{} < {} >> {}'.format(g16_command, comfile, logfile), shell=True, stdout=out, stderr=out)
+                    QM_descriptors[jobtype] = read_log(logfile, jobtype)
+            else:
+                with open(outfile) as f:
+                    if "Aborted" in f.read():
+                        with open(outfile, 'w') as out:
+                            subprocess.run('{} < {} >> {}'.format(g16_command, comfile, logfile), shell=True, stdout=out, stderr=out)
+                            QM_descriptors[jobtype] = read_log(logfile, jobtype)
+                    else:
+                        QM_descriptors[jobtype] = read_log(logfile, jobtype)
             os.chdir(pwd)
 
         QM_descriptors_return = copy.deepcopy(QM_descriptors)

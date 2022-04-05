@@ -52,6 +52,13 @@ parser.add_argument('--DFT_n_procs', type=int, default=4,
                     help='number of process for DFT calculations')
 parser.add_argument('--DFT_job_ram', type=int, default=3000,
                     help='amount of ram (MB) allocated for each DFT calculation')
+# Split number
+parser.add_argument('--split', type=int, default=None,
+                        help='split number for multi-part job')
+
+# Job control
+parser.add_argument('--only_DFT', action='store_true', help='only perform DFT related jobs')
+
 
 args = parser.parse_args()
 
@@ -61,57 +68,89 @@ logger = create_logger(name=name)
 df = pd.read_csv(args.ismiles, index_col=0)
 # create id to smile mapping
 molid_to_smi_dict = dict(zip(df.id, df.smiles))
+molid_to_charge_dict = dict()
+for k, v in molid_to_smi_dict.items():
+    try:
+        mol = Chem.MolFromSmiles(v)
+    except Exception as e:
+        logger.error(f'Cannot translate smi {v} to molecule for species {k}')
+
+    try:
+        charge = Chem.GetFormalCharge(mol)
+        molid_to_charge_dict[k] = charge
+    except Exception as e:
+        logger.error(f'Cannot determine molecular charge for species {k} with smi {v}')
 
 # conformer searching
 
-logger.info('starting MMFF conformer searching')
-supp = (x for x in df[['id', 'smiles']].values)
-conf_sdfs = csearch(supp, len(df), args, logger)
+if not args.only_DFT:
+    logger.info('starting MMFF conformer searching')
+    supp = (x for x in df[['id', 'smiles']].values)
+    conf_sdfs = csearch(supp, len(df), args, logger)
 
 # xtb optimization
 
-logger.info('starting GFN2-XTB structure optimization for the lowest MMFF conformer')
-os.makedirs(args.xtb_folder,exist_ok=True)
+if not args.only_DFT:
+    logger.info('starting GFN2-XTB structure optimization for the lowest MMFF conformer')
+    os.makedirs(args.xtb_folder,exist_ok=True)
 
-opt_sdfs = []
-for conf_sdf in conf_sdfs:
-    try:
-        shutil.copyfile(os.path.join(args.MMFF_conf_folder, conf_sdf),
-                        os.path.join(args.xtb_folder, conf_sdf))
-        opt_sdf = xtb_optimization(args.xtb_folder, conf_sdf, XTB_PATH, logger)
-        opt_sdfs.append(opt_sdf)
-    except Exception as e:
-        logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
+    opt_sdfs = []
+    for conf_sdf in conf_sdfs:
+        try:
+            shutil.copyfile(os.path.join(args.MMFF_conf_folder, conf_sdf),
+                            os.path.join(args.xtb_folder, conf_sdf))
+            opt_sdf = xtb_optimization(args.xtb_folder, conf_sdf, XTB_PATH, logger)
+            opt_sdfs.append(opt_sdf)
+        except Exception as e:
+            logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
 
 # G16 DFT calculation
-os.makedirs(args.DFT_folder, exist_ok=True)
+if not args.only_DFT:
+    os.makedirs(args.DFT_folder, exist_ok=True)
+else:
+    logger.info("Searching for optimized XTB files.")
+    opt_sdfs = []
+    for a_file in os.listdir(args.DFT_folder):
+        if a_file.endswith(".sdf"):
+            logger.info(f'Found file {a_file}')
+            molid = a_file.split('_')[0]
+            if molid in molid_to_smi_dict.keys():
+                opt_sdfs.append(a_file)
 
 qm_descriptors = dict()
 for opt_sdf in opt_sdfs:
     try:
         molid = opt_sdf.split('_')[0]
-        smi = molid_to_smi_dict[molid]
-        mol = Chem.MolFromSmiles(smi)
-        charge = Chem.GetFormalCharge(mol)
+        charge = molid_to_charge_dict[molid]
     except Exception as e:
         logger.error(f'Cannot determine molecular charge for species {molid}')
 
-    try:
-        shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
-                        os.path.join(args.DFT_folder, opt_sdf))
-        time.sleep(1)
-    except Exception as e:
-        logger.error(f'file IO error.')
+    if not args.only_DFT:
+        try:
+            shutil.copyfile(os.path.join(args.xtb_folder, opt_sdf),
+                            os.path.join(args.DFT_folder, opt_sdf))
+            time.sleep(1)
+        except Exception as e:
+            logger.error(f'file IO error.')
 
     try:
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
                                 logger, args.DFT_job_ram, charge)
-        qm_descriptors[molid] = (smi, qm_descriptor)
     except Exception as e:
         logger.error('Gaussian optimization for {} failed: {}'.format(os.path.splitext(opt_sdf)[0], e))
 
-with open('qm_descriptors.yaml', 'w') as output:
-    yaml.dump(qm_descriptors, output)
-# qm_descriptors = pd.DataFrame(qm_descriptors)
-# qm_descriptors.to_pickle(args.output)
+    try:
+        molid = opt_sdf.split('_')[0]
+        smi = molid_to_smi_dict[molid]
+        qm_descriptors[molid] = (smi, qm_descriptor)
+    except Exception as e:
+        logger.error(f'descriptor store error main.py line 143 - 144')
+
+if args.split is None:
+    with open('qm_descriptors.yaml', 'w') as output:
+        yaml.dump(qm_descriptors, output)
+else:
+    with open(f'qm_descriptors_{args.split}.yaml', 'w') as output:
+        yaml.dump(qm_descriptors, output)
+
 
