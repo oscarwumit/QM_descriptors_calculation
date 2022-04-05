@@ -48,20 +48,18 @@ def xtb_optimization(folder, sdf, xtb_path, logger):
     else:
         raise RuntimeError('xtb optimization did not finish for {}'.format(file_name))
 
-def xtb_status(folder, sdf, xtb_path, logger):
-    basename = os.path.basename(sdf)
-    file_name = os.path.splitext(basename)[0]
+def xtb_status(folder, molid):
 
     try:
-        log = XtbLog(os.path.join(folder,'{}_freq.log'.format(file_name)))
+        log = XtbLog(os.path.join(folder,'{}_freq.log'.format(molid)))
     except:
-        raise RuntimeError(f'xtb log file not found for {file_name}')
+        raise RuntimeError(f'xtb log file not found for {molid}')
 
     if log.termination:
         peaks = log.wavenum
         if np.min(peaks) < 0:
-            raise RuntimeError('imaginary frequency found for {}'.format(file_name))
+            raise RuntimeError('imaginary frequency found for {}'.format(molid))
         else:
-            return '{}_opt.sdf'.format(file_name)
+            return '{}_opt.sdf'.format(molid)
     else:
-        raise RuntimeError('xtb optimization did not finish for {}'.format(file_name))
+        raise RuntimeError('xtb optimization did not finish for {}'.format(molid))
