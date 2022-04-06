@@ -113,6 +113,7 @@ for conf_sdf in conf_sdfs:
 #         except Exception as e:
 #             logger.error('XTB optimization for {} failed: {}'.format(molid, e))
 
+os.makedirs('yamls', exist_ok=True)
 # G16 DFT calculation
 if not args.only_DFT:
     os.makedirs(args.DFT_folder, exist_ok=True)
@@ -142,6 +143,14 @@ for opt_sdf in opt_sdfs:
     except Exception as e:
         logger.error(f'file IO error for {opt_sdf}')
 
+for opt_sdf in opt_sdfs:
+    _qm_descriptors = dict()
+    try:
+        molid = opt_sdf.split('_')[0]
+        charge = molid_to_charge_dict[molid]
+    except Exception as e:
+        logger.error(f'Cannot determine molecular charge for species {molid}')
+
     try:
         qm_descriptor = dft_scf(args.DFT_folder, opt_sdf, G16_PATH, args.DFT_theory, args.DFT_n_procs,
                                 logger, args.DFT_job_ram, charge)
@@ -152,8 +161,15 @@ for opt_sdf in opt_sdfs:
         molid = opt_sdf.split('_')[0]
         smi = molid_to_smi_dict[molid]
         qm_descriptors[molid] = (smi, qm_descriptor)
+        _qm_descriptors[molid] = (smi, qm_descriptor)
+        with open(f'yamls/{molid}_qm_descriptors.yaml', 'w') as output:
+            yaml.dump(_qm_descriptors, output)
     except Exception as e:
         logger.error(f'descriptor store error main.py line 143 - 144')
+
+    
+
+    
 
 if args.split is None:
     with open('qm_descriptors.yaml', 'w') as output:
