@@ -83,35 +83,35 @@ for k, v in molid_to_smi_dict.items():
 
 # conformer searching
 
-if not args.only_DFT:
-    logger.info('starting MMFF conformer searching')
-    supp = (x for x in df[['id', 'smiles']].values)
-    conf_sdfs = csearch(supp, len(df), args, logger)
+# if not args.only_DFT:
+logger.info('starting MMFF conformer searching')
+supp = (x for x in df[['id', 'smiles']].values)
+conf_sdfs = csearch(supp, len(df), args, logger)
 
 # xtb optimization
 
-if not args.only_DFT:
-    logger.info('starting GFN2-XTB structure optimization for the lowest MMFF conformer')
-    os.makedirs(args.xtb_folder,exist_ok=True)
+# if not args.only_DFT:
+logger.info('starting GFN2-XTB structure optimization for the lowest MMFF conformer')
+os.makedirs(args.xtb_folder,exist_ok=True)
 
-    opt_sdfs = []
-    for conf_sdf in conf_sdfs:
-        try:
-            shutil.copyfile(os.path.join(args.MMFF_conf_folder, conf_sdf),
-                            os.path.join(args.xtb_folder, conf_sdf))
-            opt_sdf = xtb_optimization(args.xtb_folder, conf_sdf, XTB_PATH, logger)
-            opt_sdfs.append(opt_sdf)
-        except Exception as e:
-            logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
-else:
-    opt_sdfs = []
-    for molid, v in molid_to_smi_dict.items():
-        logger.info(f'checking xtb convergence for {molid}')
-        try:
-            opt_sdf = xtb_status(args.xtb_folder, molid)
-            opt_sdfs.append(opt_sdf)
-        except Exception as e:
-            logger.error('XTB optimization for {} failed: {}'.format(molid, e))
+opt_sdfs = []
+for conf_sdf in conf_sdfs:
+    try:
+        shutil.copyfile(os.path.join(args.MMFF_conf_folder, conf_sdf),
+                        os.path.join(args.xtb_folder, conf_sdf))
+        opt_sdf = xtb_optimization(args.xtb_folder, conf_sdf, XTB_PATH, logger)
+        opt_sdfs.append(opt_sdf)
+    except Exception as e:
+        logger.error('XTB optimization for {} failed: {}'.format(os.path.splitext(conf_sdf)[0], e))
+# else:
+#     opt_sdfs = []
+#     for molid, v in molid_to_smi_dict.items():
+#         logger.info(f'checking xtb convergence for {molid}')
+#         try:
+#             opt_sdf = xtb_status(args.xtb_folder, molid)
+#             opt_sdfs.append(opt_sdf)
+#         except Exception as e:
+#             logger.error('XTB optimization for {} failed: {}'.format(molid, e))
 
 # G16 DFT calculation
 if not args.only_DFT:
