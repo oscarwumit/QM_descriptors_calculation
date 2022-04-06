@@ -276,6 +276,10 @@ class G16Log:
             self.hirshfeld_charges = np.array(hirshfeld_charges)
             self.hirshfeld_spin_density = np.array(hirshfeld_spin_density)
             self.hirshfeld_dipoles = np.array(hirshfeld_dipoles)
+        else:
+            self.hirshfeld_charges = None
+            self.hirshfeld_spin_density = None
+            self.hirshfeld_dipoles = None
 
 
     def GetNPA(self):
