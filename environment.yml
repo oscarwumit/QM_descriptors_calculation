@@ -4,6 +4,7 @@ channels:
   - rdkit
   - pytorch
   - conda-forge
+  - xiaoruidong
 
 dependencies:
   - python=3.7
@@ -11,3 +12,4 @@ dependencies:
   - numpy
   - tqdm
   - pandas
+  - rdmc
