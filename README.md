@@ -47,12 +47,9 @@ can be either str or int.
 
 ### Output
 The code will generate three folders, as specified by the 
-arguments '--MMFF_conf_folder', '--xtb_folder', '--DFT_folder', which hold results for 
-MMFF conformer searching, semi-empirical optimization, and DFT electronic structure calculations, 
+arguments '--MMFF_conf_folder', '--xtb_folder', '--DFT_folder', '--QM_des_folder', which hold results for 
+MMFF conformer searching, semi-empirical optimization, DFT electronic structure calculations, and QM descriptors results
 respectively.
-
-The QM descriptors from DFT calculations will be parsed automatically and saved as a dataframe in the 
-.pickle file specified by '--output' argument.
 
 ### Use on the HPC
 See submit.sh for an example of submitting scripts. The following parameters in the 
