@@ -128,7 +128,7 @@ class json2csv():
                             v[bond.GetBeginAtom().GetIdx(), bond.GetEndAtom().GetIdx()])
                     v = bond_target_arranged
                     d_mol[key] = np.array(v)
-                elif key == 'mulliken_condensed_charge_matrix':
+                elif key == 'bond_charge':
                     v = np.array(base_data['mulliken_condensed_charge_matrix'])
                     bond_target_arranged = []
                     for bond in mol.GetBonds():
@@ -330,7 +330,7 @@ property_names = [
     '4p_val_occ',
     'bond_index_matrix',
     'bond_length_matrix',
-    'mulliken_condensed_charge_matrix',
+    'bond_charge',
     'natural_ionicity',
     'HL_gaps',
     'mulliken_dipole_tot',
